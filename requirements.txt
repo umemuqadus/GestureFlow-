@@ -1,0 +1,27 @@
+# GestureFlow AI — runtime dependencies
+# Verified with Python 3.12 on Windows 10/11 (see README "Tested versions").
+#
+# Install:  python -m pip install -r requirements.txt
+
+# MediaPipe Tasks API (HandLandmarker).  The hand-landmark model is downloaded
+# ONCE during setup by scripts/download_model.py and then used fully offline.
+mediapipe>=0.10.20,<1.0
+
+# Numerical / image processing (also required by mediapipe).
+numpy>=1.26,<3
+opencv-contrib-python>=4.9
+
+# Desktop UI (Essentials provides QtCore/QtGui/QtWidgets — enough for this app;
+# install the full "pyside6" metapackage instead if you prefer, it just adds
+# optional modules like WebEngine that GestureFlow AI does not use).
+PySide6-Essentials>=6.5,<7
+
+# Real mouse control (cursor, click, drag, scroll) with a built-in failsafe.
+PyAutoGUI>=0.9.54
+
+# Screen brightness via WMI (internal laptop panels).  Used offline at runtime;
+# when it is absent or the display does not expose brightness, the brightness
+# gesture reports itself unavailable instead of failing.  Screenshots use Pillow
+# (a transitive dependency of PyAutoGUI) and volume/media keys use PyAutoGUI, so
+# no extra packages are needed for those.
+wmi>=1.5.1; sys_platform == 'win32'

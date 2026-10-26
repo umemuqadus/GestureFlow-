@@ -1,0 +1,11 @@
+# GestureFlow AI — development / packaging extras
+# Install on top of requirements.txt:
+#   python -m pip install -r requirements-dev.txt
+
+-r requirements.txt
+
+# Test runner
+pytest>=8.0
+
+# Optional: build a standalone Windows executable (see README "Packaging")
+pyinstaller>=6.0

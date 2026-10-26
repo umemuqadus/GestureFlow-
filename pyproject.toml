@@ -1,0 +1,46 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gestureflow-ai"
+version = "1.2.0"
+description = "Control the Windows mouse with hand gestures through your webcam — runs fully offline."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "GestureFlow AI" }]
+keywords = ["hand-gesture", "mouse-control", "mediapipe", "opencv", "pyside6", "accessibility"]
+classifiers = [
+    "Programming Language :: Python :: 3.12",
+    "Operating System :: Microsoft :: Windows",
+    "Intended Audience :: End Users/Desktop",
+    "Topic :: Human Computer Interaction :: Mouse",
+]
+
+# Runtime dependencies are declared in requirements.txt (kept there so the
+# simple `pip install -r requirements.txt` setup path is unchanged).
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pyinstaller>=6.0"]
+
+[tool.setuptools]
+packages = [
+    "app",
+    "ui",
+    "vision",
+    "gestures",
+    "controller",
+    "services",
+    "database",
+    "utils",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
+filterwarnings = [
+    # MediaPipe emits deprecation/perf hints on import; not actionable here.
+    "ignore::DeprecationWarning",
+]

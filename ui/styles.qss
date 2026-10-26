@@ -1,0 +1,368 @@
+/* GestureFlow AI stylesheet.
+
+Colour tokens are written as @@token@@ and substituted by ui.theme.build_qss()
+depending on the active theme (light/dark).  Tokens are used instead of str.format
+because QSS is full of braces.
+*/
+
+* {
+    font-family: "Segoe UI", "Inter", sans-serif;
+    font-size: 13px;
+}
+
+QMainWindow, #Root {
+    background: @@background@@;
+}
+
+/* ------------------------------------------------------------------ sidebar */
+#Sidebar {
+    background: @@sidebar@@;
+    border-right: 1px solid @@border@@;
+}
+
+#SidebarTitle {
+    font-size: 17px;
+    font-weight: 700;
+    color: @@text@@;
+    padding: 4px 8px;
+}
+
+#SidebarSubtitle {
+    font-size: 11px;
+    color: @@muted@@;
+    padding: 0px 8px 8px 8px;
+}
+
+#NavButton {
+    text-align: left;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 1px solid transparent;
+    background: transparent;
+    color: @@muted@@;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+#NavButton:hover {
+    background: @@hover@@;
+    color: @@text@@;
+}
+
+#NavButton[active="true"] {
+    background: @@accent_soft@@;
+    color: @@accent@@;
+    border: 1px solid @@accent_soft@@;
+    font-weight: 600;
+}
+
+/* -------------------------------------------------------------------- cards */
+#Card {
+    background: @@surface@@;
+    border: 1px solid @@border@@;
+    border-radius: 14px;
+}
+
+#CardTitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: @@text@@;
+}
+
+#CardSubtitle {
+    font-size: 11px;
+    color: @@muted@@;
+}
+
+#PageTitle {
+    font-size: 22px;
+    font-weight: 700;
+    color: @@text@@;
+}
+
+#SectionTitle {
+    font-size: 15px;
+    font-weight: 600;
+    color: @@text@@;
+    padding-top: 4px;
+}
+
+/* ------------------------------------------------------------------- labels */
+QLabel {
+    color: @@text@@;
+}
+
+#Muted, #StatLabel {
+    color: @@muted@@;
+    font-size: 12px;
+}
+
+#StatValue {
+    font-size: 20px;
+    font-weight: 700;
+    color: @@text@@;
+}
+
+#StatValueSmall {
+    font-size: 14px;
+    font-weight: 600;
+    color: @@text@@;
+}
+
+#Pill {
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    background: @@muted_soft@@;
+    color: @@muted@@;
+}
+
+#PillOk {
+    background: @@ok_soft@@;
+    color: @@ok@@;
+}
+
+#PillWarn {
+    background: @@warn_soft@@;
+    color: @@warn@@;
+}
+
+#PillAccent {
+    background: @@accent_soft@@;
+    color: @@accent@@;
+}
+
+/* ----------------------------------------------------------------- controls */
+QPushButton {
+    background: @@surface@@;
+    color: @@text@@;
+    border: 1px solid @@border@@;
+    border-radius: 9px;
+    padding: 8px 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background: @@hover@@;
+}
+
+QPushButton:disabled {
+    color: @@muted@@;
+    background: @@surface@@;
+}
+
+#PrimaryButton {
+    background: @@accent@@;
+    color: @@on_accent@@;
+    border: 1px solid @@accent@@;
+    font-weight: 600;
+}
+
+#PrimaryButton:hover {
+    background: @@accent_hover@@;
+}
+
+#PrimaryButton:disabled {
+    background: @@muted_soft@@;
+    border-color: @@muted_soft@@;
+    color: @@muted@@;
+}
+
+#DangerButton {
+    background: @@danger@@;
+    color: #FFFFFF;
+    border: 1px solid @@danger@@;
+    font-weight: 600;
+}
+
+#DangerButton:hover {
+    background: @@danger_hover@@;
+}
+
+#GhostButton {
+    background: transparent;
+    border: 1px solid @@border@@;
+}
+
+/* ------------------------------------------------------------------ inputs */
+QLineEdit, QComboBox, QSpinBox, QDoubleSpinBox {
+    background: @@field@@;
+    border: 1px solid @@border@@;
+    border-radius: 8px;
+    padding: 6px 10px;
+    color: @@text@@;
+    selection-background-color: @@accent@@;
+}
+
+QLineEdit:focus, QComboBox:focus, QSpinBox:focus, QDoubleSpinBox:focus {
+    border: 1px solid @@accent@@;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 22px;
+}
+
+QComboBox QAbstractItemView {
+    background: @@surface@@;
+    border: 1px solid @@border@@;
+    border-radius: 8px;
+    selection-background-color: @@accent_soft@@;
+    selection-color: @@accent@@;
+    outline: none;
+}
+
+QSlider::groove:horizontal {
+    height: 5px;
+    background: @@muted_soft@@;
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    width: 16px;
+    height: 16px;
+    margin: -6px 0;
+    border-radius: 8px;
+    background: @@accent@@;
+}
+
+QSlider::sub-page:horizontal {
+    background: @@accent@@;
+    border-radius: 3px;
+}
+
+/* ----------------------------------------------------------------- switches */
+QCheckBox {
+    spacing: 8px;
+    color: @@text@@;
+    background: transparent;
+}
+
+QCheckBox::indicator {
+    width: 38px;
+    height: 20px;
+    border-radius: 10px;
+    background: @@muted_soft@@;
+    border: 1px solid @@border@@;
+}
+
+QCheckBox::indicator:checked {
+    background: @@accent@@;
+    border: 1px solid @@accent@@;
+}
+
+QCheckBox::indicator:hover {
+    border: 1px solid @@accent@@;
+}
+
+/* ------------------------------------------------------------------- tables */
+QTableWidget, QTableView {
+    background: @@surface@@;
+    border: 1px solid @@border@@;
+    border-radius: 10px;
+    gridline-color: @@border@@;
+    selection-background-color: @@accent_soft@@;
+    selection-color: @@text@@;
+}
+
+QHeaderView::section {
+    background: @@header@@;
+    color: @@muted@@;
+    padding: 8px;
+    border: none;
+    border-bottom: 1px solid @@border@@;
+    font-weight: 600;
+}
+
+QTableWidget::item {
+    padding: 6px;
+    color: @@text@@;
+}
+
+/* ---------------------------------------------------------------- scrollbars */
+QScrollArea {
+    border: none;
+    background: transparent;
+}
+
+QScrollArea > QWidget > QWidget {
+    background: transparent;
+}
+
+QScrollBar:vertical {
+    background: transparent;
+    width: 10px;
+    margin: 0;
+}
+
+QScrollBar::handle:vertical {
+    background: @@muted_soft@@;
+    border-radius: 5px;
+    min-height: 30px;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    background: transparent;
+    height: 10px;
+}
+
+QScrollBar::handle:horizontal {
+    background: @@muted_soft@@;
+    border-radius: 5px;
+    min-width: 30px;
+}
+
+QTabWidget::pane {
+    border: 1px solid @@border@@;
+    border-radius: 10px;
+    background: @@surface@@;
+}
+
+QTabBar::tab {
+    background: transparent;
+    color: @@muted@@;
+    padding: 8px 14px;
+    border-radius: 8px;
+    margin-right: 4px;
+}
+
+QTabBar::tab:selected {
+    background: @@accent_soft@@;
+    color: @@accent@@;
+    font-weight: 600;
+}
+
+/* ---------------------------------------------------------------- messages */
+#BannerError {
+    background: @@danger_soft@@;
+    color: @@danger@@;
+    border: 1px solid @@danger_soft@@;
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+#BannerOk {
+    background: @@ok_soft@@;
+    color: @@ok@@;
+    border: 1px solid @@ok_soft@@;
+    border-radius: 10px;
+    padding: 10px 12px;
+}
+
+#StatusStrip {
+    background: @@surface@@;
+    border: 1px solid @@border@@;
+    border-radius: 10px;
+}
+
+QToolTip {
+    background: @@surface@@;
+    color: @@text@@;
+    border: 1px solid @@border@@;
+    padding: 4px 6px;
+}
