@@ -17,11 +17,10 @@ from controller.coordinate_mapper import CoordinateMapper
 from controller.cursor_smoother import CursorSmoother
 from controller.mouse_controller import LEFT, MouseController
 from controller.safety_manager import SafetyManager
-from gestures import gesture_rules as rules
 from gestures.gesture_classifier import GestureClassifier
 from gestures.gesture_config import default_rules
 from gestures.gesture_state import GestureStateMachine
-from tests.conftest import FakeMouseBackend, pinch, point, scroll_vertical, zoom_pose
+from tests.conftest import FakeMouseBackend, pinch, point, scroll_vertical
 from vision.landmark_processor import cursor_anchor
 
 SCREEN = (1920, 1080)
@@ -51,9 +50,7 @@ class Pipeline:
             self.machine.resume()
         anchor = cursor_anchor(obs) if obs is not None else None
         out = self.machine.update(classification.gesture, now=now,
-                                  hand_position=anchor,
-                                  zoom_spread=rules.finger_spread(obs)
-                                  if obs is not None else None)
+                                  hand_position=anchor)
         if not self.safety.may_act():
             if self.machine.dragging or self.mouse.held_buttons:
                 self.mouse.release_all()
@@ -73,8 +70,6 @@ class Pipeline:
             self.mouse.release(LEFT)
         elif action == C.ACTION_SCROLL_V:
             self.mouse.scroll_vertical(out.scroll_dy)
-        elif action in (C.ACTION_ZOOM_IN, C.ACTION_ZOOM_OUT):
-            self.mouse.zoom(out.zoom_steps)
 
     def _move(self, anchor) -> None:
         if anchor is None:
@@ -166,20 +161,6 @@ def test_scroll_gesture_issues_scroll_events():
         actions.append(pipeline.frame(scroll_pose(y), now=0.1 + i * 0.05))
     assert C.ACTION_SCROLL_V in actions
     assert pipeline.backend.of_type("scroll"), "a scroll event should reach the mouse"
-
-
-def test_zoom_gesture_issues_ctrl_wheel_events():
-    config = AppConfig()
-    config.gestures.scroll_deadzone_px = 0
-    pipeline = Pipeline(config)
-
-    # Opening the V across frames (index and middle tips moving apart).
-    actions = [pipeline.frame(zoom_pose(s), now=i * 0.05)
-               for i, s in enumerate((0.45, 0.55, 0.65, 0.75))]
-    assert C.ACTION_ZOOM_IN in actions
-    assert ("keyDown", "ctrl") in pipeline.backend.calls
-    assert any(c[0] == "scroll" and c[1] > 0 for c in pipeline.backend.calls)
-    assert pipeline.backend.calls[-1] == ("keyUp", "ctrl")
 
 
 def test_safety_pause_blocks_cursor_movement():

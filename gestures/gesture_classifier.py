@@ -33,7 +33,7 @@ class Classification:
             span = max(0.05, self.fingers.pinch_distance)
             strength = max(0.0, 1.0 - distance / max(0.05, span * 2))
         elif self.gesture in (C.GESTURE_POINT, C.GESTURE_SCROLL_V, C.GESTURE_SCROLL_H,
-                              C.GESTURE_ZOOM, C.GESTURE_OPEN_PALM, C.GESTURE_FIST,
+                              C.GESTURE_OPEN_PALM, C.GESTURE_FIST,
                               C.GESTURE_THUMB_UP, C.GESTURE_THUMB_DOWN,
                               C.GESTURE_SHAKA, C.GESTURE_FLAT_HAND,
                               C.GESTURE_THREE_FINGERS):
@@ -71,18 +71,10 @@ class GestureClassifier:
             if rules.is_right_click_sustain(fingers, cfg):
                 return Classification(C.GESTURE_RIGHT_CLICK, fingers, obs)
             self._latched = None
-        if self._latched == C.GESTURE_ZOOM:
-            # The latch keeps the zoom alive while the V closes back toward
-            # the scroll position (that is zoom-out) until the spread drops
-            # below the release point, where it becomes a scroll again.
-            if rules.is_zoom_sustain(obs, fingers):
-                return Classification(C.GESTURE_ZOOM, fingers, obs)
-            self._latched = None
 
         for gesture in rules.PRIORITY:
             if self._matches(gesture, obs, fingers):
-                if gesture in (C.GESTURE_PINCH, C.GESTURE_RIGHT_CLICK,
-                               C.GESTURE_ZOOM):
+                if gesture in (C.GESTURE_PINCH, C.GESTURE_RIGHT_CLICK):
                     self._latched = gesture
                 return Classification(gesture, fingers, obs)
 
@@ -99,8 +91,6 @@ class GestureClassifier:
             return rules.is_scroll_horizontal(obs, fingers)
         if gesture == C.GESTURE_SCROLL_V:
             return rules.is_scroll_vertical(obs, fingers)
-        if gesture == C.GESTURE_ZOOM:
-            return rules.is_zoom_enter(obs, fingers)
         if gesture == C.GESTURE_POINT:
             return rules.is_point(fingers)
         if gesture == C.GESTURE_FIST:

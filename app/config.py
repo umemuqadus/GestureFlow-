@@ -66,7 +66,6 @@ class GestureConfig:
     drag_hold_ms: int = C.DEFAULT_DRAG_HOLD_MS
     scroll_sensitivity: float = C.DEFAULT_SCROLL_SENSITIVITY
     scroll_deadzone_px: int = C.DEFAULT_SCROLL_DEADZONE_PX
-    zoom_sensitivity: float = C.DEFAULT_ZOOM_SENSITIVITY
     pause_hold_ms: int = C.DEFAULT_PAUSE_HOLD_MS
     min_gesture_frames: int = 2
 
@@ -76,7 +75,6 @@ class GestureConfig:
     enable_double_click: bool = True
     enable_drag: bool = True
     enable_scroll: bool = True
-    enable_zoom: bool = True
     enable_pause: bool = True
     # System-control gestures (screenshot / volume / brightness / media).
     enable_screenshot: bool = True
@@ -104,7 +102,6 @@ class SafetyConfig:
     emergency_stop_hotkey: str = "esc"
     calibration_hotkey: str = "ctrl+alt+c"
     quit_hotkey: str = "ctrl+alt+q"
-    keyboard_hotkey: str = "ctrl+alt+k"
 
 
 @dataclass
@@ -157,8 +154,6 @@ class AppConfig:
             raise ValueError("Scroll sensitivity must be between 0.1 and 10.")
         if not 0 <= g.scroll_deadzone_px <= 200:
             raise ValueError("Scroll dead zone must be between 0 and 200 px.")
-        if not 0.1 <= g.zoom_sensitivity <= 10.0:
-            raise ValueError("Zoom sensitivity must be between 0.1 and 10.")
         if not 100 <= g.pause_hold_ms <= 10000:
             raise ValueError("Pause hold duration must be between 100 and 10000 ms.")
         if not 1 <= g.min_gesture_frames <= 10:

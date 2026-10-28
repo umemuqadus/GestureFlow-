@@ -25,7 +25,6 @@ from controller.cursor_smoother import CursorSmoother
 from controller.mouse_controller import LEFT, MouseController
 from controller.safety_manager import SafetyManager
 from controller.system_controller import SystemController
-from gestures import gesture_rules as rules
 from gestures.gesture_classifier import GestureClassifier
 from gestures.gesture_config import GestureRule
 from gestures.gesture_state import GestureStateMachine, StateMachineOutput
@@ -228,16 +227,12 @@ class ControllerEngine(QThread):
 
             anchor: tuple[float, float] | None = None
             pinch_distance: float | None = None
-            zoom_spread: float | None = None
             if observation is not None:
                 anchor = cursor_anchor(observation)
                 self.metrics.hands_detected = 1
                 self.metrics.tracking_confidence = classification.confidence
                 if classification.fingers is not None:
                     pinch_distance = classification.fingers.pinch_distance
-                # The V-spread (index tip to middle tip) is the analog zoom
-                # input; cheap, and only meaningful while the zoom pose holds.
-                zoom_spread = rules.finger_spread(observation)
                 self.metrics.pinch_distance = pinch_distance or 0.0
             else:
                 self.metrics.hands_detected = 0
@@ -247,8 +242,7 @@ class ControllerEngine(QThread):
                 prev_anchor = None
                 self.smoother.reset()  # don't slide in from a stale position
 
-            output = self.machine.update(gesture, hand_position=anchor,
-                                         zoom_spread=zoom_spread)
+            output = self.machine.update(gesture, hand_position=anchor)
 
             # --- execute (only when safety allows) -------------------------
             if self.safety.may_act():
@@ -345,13 +339,6 @@ class ControllerEngine(QThread):
         if action == C.ACTION_SCROLL_H:
             self.mouse.scroll_horizontal(output.scroll_dx)
             self.metrics.record_scroll(abs(output.scroll_dx))
-            return
-
-        if action in (C.ACTION_ZOOM_IN, C.ACTION_ZOOM_OUT):
-            # Ctrl+wheel under the hood; zoom steps count as wheel events in
-            # the session statistics.
-            self.mouse.zoom(output.zoom_steps)
-            self.metrics.record_scroll(abs(output.zoom_steps))
             return
 
         # --- system actions (screenshot / volume / brightness / media) -------

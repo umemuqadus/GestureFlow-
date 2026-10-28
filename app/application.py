@@ -13,7 +13,6 @@ from PySide6.QtCore import QObject, Signal
 from app import constants as C
 from app.config import AppConfig
 from controller.engine import ControllerEngine
-from controller.keyboard_controller import KeyboardController
 from controller.mouse_controller import MouseController
 from controller.safety_manager import SafetyManager
 from database.database_manager import DatabaseManager, DatabaseError
@@ -42,7 +41,6 @@ class Application(QObject):
     state_changed = Signal(str)
     screenshot_taken = Signal(str)  # absolute path of a just-saved screenshot
     level_changed = Signal(str, int, bool)  # (volume|brightness, 0-100, muted)
-    toggle_keyboard = Signal()      # request the UI to show/hide the virtual keyboard
 
     def __init__(self) -> None:
         super().__init__()
@@ -65,7 +63,6 @@ class Application(QObject):
         self.rules: dict[str, GestureRule] = default_rules(self.config.gestures)
 
         self.mouse = MouseController(failsafe=self.config.safety.pyautogui_failsafe)
-        self.keyboard = KeyboardController()
         self.safety = SafetyManager(self.mouse, self.config.safety)
         self.engine: ControllerEngine | None = None
         self.hotkeys: GlobalHotkeyFilter | None = None
@@ -88,7 +85,6 @@ class Application(QObject):
             self.config.safety.emergency_stop_hotkey,
             self.config.safety.calibration_hotkey,
             self.config.safety.quit_hotkey,
-            self.config.safety.keyboard_hotkey,
         ]
         results = self.hotkeys.register_many(specs)
         for spec, ok in results.items():
@@ -106,8 +102,6 @@ class Application(QObject):
             self.emergency_stop("hotkey")
         elif spec == cfg.quit_hotkey:
             self.request_quit()
-        elif spec == cfg.keyboard_hotkey:
-            self.toggle_keyboard.emit()
         elif spec == cfg.calibration_hotkey:
             self.status_changed.emit("Open the Calibration page to recalibrate.")
 
@@ -171,10 +165,6 @@ class Application(QObject):
             self.status_changed.emit("Start the controller before pausing.")
             return
         self.safety.toggle_pause()
-
-    def request_keyboard_toggle(self) -> None:
-        """Ask the UI to show/hide the virtual keyboard overlay."""
-        self.toggle_keyboard.emit()
 
     def emergency_stop(self, reason: str = "user") -> None:
         """Immediate halt: releases buttons and stops the engine."""

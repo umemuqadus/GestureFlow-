@@ -68,15 +68,6 @@ _SCROLL_MAX_STEPS = 5
 # later drains as a runaway scroll.
 _SCROLL_ACCUM_MAX = 15.0
 
-# --- zoom tuning --------------------------------------------------------------
-# Zoom mirrors the scroll model, but the input is the per-frame change of the
-# index+middle fingertip spread (the 'V') instead of a hand position: opening
-# the V zooms in, closing it zooms out.
-_ZOOM_SMOOTH = 0.45     # EMA factor for the per-frame spread delta
-_ZOOM_GAIN = 15.0       # spread-delta -> wheel-step gain, x cfg.zoom_sensitivity
-_ZOOM_MAX_STEPS = 3     # per-frame emitted-step clamp
-_ZOOM_ACCUM_MAX = 4.5   # accumulator bound (no runaway zoom backlog)
-
 
 @dataclass
 class StateMachineOutput:
@@ -86,7 +77,6 @@ class StateMachineOutput:
     state: str = C.STATE_IDLE
     scroll_dx: int = 0
     scroll_dy: int = 0
-    zoom_steps: int = 0   # signed: positive zooms in, negative out
     reason: str = ""
 
 
@@ -109,10 +99,6 @@ class GestureStateMachine:
         # Scroll smoothing state: EMA velocity + fractional-step accumulator.
         self._scroll_vel: float = 0.0
         self._scroll_accum: float = 0.0
-        # Zoom smoothing state: same model, driven by the fingertip spread.
-        self._zoom_vel: float = 0.0
-        self._zoom_accum: float = 0.0
-        self._last_spread: float | None = None
         # System-control bookkeeping (screenshot / volume / brightness / media).
         self._last_system_at: float = float("-inf")
         self._system_fired_gesture: str | None = None  # discrete: one shot per held pose
@@ -129,9 +115,6 @@ class GestureStateMachine:
         self._last_hand_pos = None
         self._scroll_vel = 0.0
         self._scroll_accum = 0.0
-        self._zoom_vel = 0.0
-        self._zoom_accum = 0.0
-        self._last_spread = None
         self._last_system_at = float("-inf")
         self._system_fired_gesture = None
         self.state = C.STATE_PAUSED if self.paused else C.STATE_IDLE
@@ -142,8 +125,6 @@ class GestureStateMachine:
         self._pinch_started_at = None
         self._scroll_vel = 0.0
         self._scroll_accum = 0.0
-        self._zoom_vel = 0.0
-        self._zoom_accum = 0.0
         # Restart the palm-hold timer so the same continuous palm cannot
         # immediately resume control on the next frame.
         self._gesture_since = time.perf_counter() if now is None else now
@@ -173,14 +154,11 @@ class GestureStateMachine:
         gesture: str,
         now: float | None = None,
         hand_position: tuple[float, float] | None = None,
-        zoom_spread: float | None = None,
     ) -> StateMachineOutput:
         """Advance the machine by one frame.
 
         ``hand_position`` is the normalised frame coordinate of the tracking
-        anchor, used for scroll-delta computation.  ``zoom_spread`` is the
-        index+middle fingertip spread (hand-scale units), the analog input
-        for zoom.
+        anchor, used for scroll-delta computation.
         """
         now = time.perf_counter() if now is None else now
         out = StateMachineOutput()
@@ -231,10 +209,9 @@ class GestureStateMachine:
             self._gesture_since = now
             # A new pose re-arms discrete system actions and restarts the
             # baselines used by the movement-based gestures (scroll /
-            # brightness / zoom).
+            # brightness).
             self._system_fired_gesture = None
             self._last_hand_pos = None
-            self._last_spread = None
         held_ms = (now - self._gesture_since) * MS
         min_frames_ms = self.cfg.min_gesture_frames * (1000.0 / 30.0)
         self._gesture = gesture
@@ -265,10 +242,6 @@ class GestureStateMachine:
             return self._handle_system(gesture, now, held_ms, min_frames_ms,
                                        hand_position)
 
-        # --- zoom (index + middle spread in a V) ----------------------------
-        if gesture == C.GESTURE_ZOOM and self._rule_enabled(C.GESTURE_ZOOM):
-            return self._handle_zoom(now, zoom_spread)
-
         # --- scrolling ----------------------------------------------------
         if gesture in (C.GESTURE_SCROLL_V, C.GESTURE_SCROLL_H) \
                 and self._rule_enabled(C.GESTURE_SCROLL_V):
@@ -296,7 +269,6 @@ class GestureStateMachine:
         self._gesture_since = 0.0
         self._pinch_started_at = None
         self._last_hand_pos = None
-        self._last_spread = None
         self.state = C.STATE_PAUSED if self.paused else C.STATE_NO_HAND
         out.state = self.state
         return out
@@ -455,64 +427,6 @@ class GestureStateMachine:
         else:
             out.action = C.ACTION_SCROLL_H
             out.scroll_dx = steps
-        return out
-
-    def _handle_zoom(self, now: float,
-                     zoom_spread: float | None) -> StateMachineOutput:
-        """V pose: opening the index+middle spread zooms in, closing it out.
-
-        The per-frame fingertip-spread delta is EMA-smoothed, gated by a dead
-        zone and accumulated into whole wheel steps, exactly like scroll:
-        summing per-frame spread deltas yields the total fingertip travel,
-        which is frame-rate independent, and the accumulator keeps slow
-        deliberate motion from being truncated away.  Opening the V (positive
-        delta) zooms in; closing it zooms out.  The dead zone reuses the
-        configured scroll dead zone so one slider governs both movement
-        gestures.
-        """
-        out = StateMachineOutput()
-        self.state = C.STATE_ZOOMING
-        out.state = self.state
-
-        if zoom_spread is None:
-            self._last_spread = None
-            self._zoom_vel = 0.0
-            self._zoom_accum = 0.0
-            return out
-
-        if self._last_spread is None:
-            self._last_spread = zoom_spread  # baseline, no jump
-            self._zoom_vel = 0.0
-            self._zoom_accum = 0.0
-            return out
-
-        delta = zoom_spread - self._last_spread
-        self._last_spread = zoom_spread
-        self._zoom_vel = _ZOOM_SMOOTH * delta + (1.0 - _ZOOM_SMOOTH) * self._zoom_vel
-
-        deadzone = self.cfg.scroll_deadzone_px / 1000.0
-        if abs(self._zoom_vel) < deadzone:
-            # Inside the dead zone: bleed momentum so a steady thumb cannot
-            # release a delayed burst of zoom steps later.
-            self._zoom_vel = 0.0
-            self._zoom_accum *= 0.5
-            if abs(self._zoom_accum) < 0.5:
-                self._zoom_accum = 0.0
-            return out
-
-        gain = _ZOOM_GAIN * self.cfg.zoom_sensitivity
-        self._zoom_accum += self._zoom_vel * gain
-        self._zoom_accum = max(
-            -_ZOOM_ACCUM_MAX, min(_ZOOM_ACCUM_MAX, self._zoom_accum)
-        )
-
-        steps = int(self._zoom_accum)  # truncates toward zero, keeps sign
-        if steps == 0:
-            return out
-        self._zoom_accum -= steps
-        steps = max(-_ZOOM_MAX_STEPS, min(_ZOOM_MAX_STEPS, steps))
-        out.action = C.ACTION_ZOOM_IN if steps > 0 else C.ACTION_ZOOM_OUT
-        out.zoom_steps = steps
         return out
 
     # -- system actions -------------------------------------------------------

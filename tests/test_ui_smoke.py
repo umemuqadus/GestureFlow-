@@ -90,13 +90,6 @@ def test_main_window_constructs(application):
     window = MainWindow(application)
     assert hasattr(window, "_shot_overlay")
     assert hasattr(window, "_level_overlay")
-    assert hasattr(window, "_keyboard")
-    # The virtual keyboard toggle must be wired to the Application signal:
-    # emitting it should flip the overlay's visibility.
-    application.toggle_keyboard.emit()
-    assert window._keyboard.isVisible()
-    application.toggle_keyboard.emit()
-    assert not window._keyboard.isVisible()
     # Theme switching must also reach the overlays without error.
     window.apply_theme("dark")
     window.apply_theme("light")
@@ -105,7 +98,6 @@ def test_main_window_constructs(application):
     assert window._level_overlay.isVisible()
     window._level_overlay.hide()
     window._shot_overlay.deleteLater()
-    window._keyboard.deleteLater()
     window._level_overlay.deleteLater()
     window.deleteLater()
 

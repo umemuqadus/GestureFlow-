@@ -96,40 +96,6 @@ def test_horizontal_scroll(mouse, backend):
     assert backend.of_type("hscroll") == [("hscroll", 3)]
 
 
-def test_zoom_holds_ctrl_around_the_wheel_event(mouse, backend):
-    mouse.zoom(2)
-    assert backend.calls[-3:] == [("keyDown", "ctrl"), ("scroll", 2),
-                                  ("keyUp", "ctrl")]
-
-
-def test_zoom_out_sends_negative_wheel(mouse, backend):
-    mouse.zoom(-3)
-    assert ("scroll", -3) in backend.calls
-    assert backend.calls[-1] == ("keyUp", "ctrl")
-
-
-def test_zoom_is_clamped(mouse, backend):
-    mouse.zoom(999)
-    assert backend.of_type("scroll") == [("scroll", 10)]
-
-
-def test_zoom_zero_is_noop(mouse, backend):
-    mouse.zoom(0)
-    assert backend.calls == []
-
-
-def test_zoom_releases_ctrl_even_when_the_wheel_fails(mouse, backend):
-    class ExplodingBackend(FakeMouseBackend):
-        def scroll(self, amount, _pause=False):
-            raise RuntimeError("wheel unavailable")
-
-    exploding_backend = ExplodingBackend()
-    exploding = MouseController(failsafe=True, backend=exploding_backend)
-    exploding.zoom(2)   # must not raise
-    # Ctrl was still released after the failed wheel event.
-    assert exploding_backend.of_type("keyUp") == [("keyUp", "ctrl")]
-
-
 def test_invalid_button_raises(mouse):
     with pytest.raises(ValueError):
         mouse.click("sideways")

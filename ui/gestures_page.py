@@ -196,25 +196,6 @@ class GesturesPage(QWidget):
         body.addWidget(scroll_h)
         self._rows[C.GESTURE_SCROLL_H] = scroll_h
 
-        # -- zoom -----------------------------------------------------------------
-        zoom = GestureRow(
-            "Two fingers spread — Zoom",
-            "Hold up index + middle fingers like a V (ring and pinky curled), "
-            "then open the V wider to zoom in or close it to zoom out. Fingers "
-            "held together still scroll as usual. Uses Ctrl + wheel, so it works "
-            "in browsers, Office, File Explorer and image viewers.",
-            "Zoom in / out",
-        )
-        self.zoom_sens = SliderRow("Sensitivity", 0.1, 10.0, cfg.zoom_sensitivity,
-                                   decimals=2)
-        zoom_note = QLabel("Uses the scroll dead zone slider above for jitter filtering.")
-        zoom_note.setObjectName("CardSubtitle")
-        zoom.add_control(self.zoom_sens)
-        zoom.add_control(zoom_note)
-        zoom.toggle.set_checked(cfg.enable_zoom)
-        body.addWidget(zoom)
-        self._rows[C.GESTURE_ZOOM] = zoom
-
         # -- pause --------------------------------------------------------------
         pause = GestureRow(
             "Open palm — Pause",
@@ -315,8 +296,6 @@ class GesturesPage(QWidget):
             lambda v: self._update(scroll_sensitivity=round(v, 3)))
         self.scroll_deadzone.valueChanged.connect(
             lambda v: self._update(scroll_deadzone_px=int(v)))
-        self.zoom_sens.valueChanged.connect(
-            lambda v: self._update(zoom_sensitivity=round(v, 3)))
         self.pause_hold.valueChanged.connect(lambda v: self._update(pause_hold_ms=int(v)))
         self.system_hold.valueChanged.connect(
             lambda v: self._update(system_hold_ms=int(v)))
@@ -326,7 +305,6 @@ class GesturesPage(QWidget):
         dbl.toggle.toggled_bool.connect(lambda v: self._update(enable_double_click=v))
         right.toggle.toggled_bool.connect(lambda v: self._update(enable_right_click=v))
         scroll_v.toggle.toggled_bool.connect(self._on_scroll_toggle)
-        zoom.toggle.toggled_bool.connect(lambda v: self._update(enable_zoom=v))
         pause.toggle.toggled_bool.connect(lambda v: self._update(enable_pause=v))
         screenshot.toggle.toggled_bool.connect(
             lambda v: self._update(enable_screenshot=v))
@@ -377,7 +355,6 @@ class GesturesPage(QWidget):
             (self.right_threshold, cfg.right_pinch_threshold),
             (self.scroll_sens, cfg.scroll_sensitivity),
             (self.scroll_deadzone, cfg.scroll_deadzone_px),
-            (self.zoom_sens, cfg.zoom_sensitivity),
             (self.pause_hold, cfg.pause_hold_ms),
             (self.system_hold, cfg.system_hold_ms),
         ):
@@ -387,7 +364,6 @@ class GesturesPage(QWidget):
         self._rows[C.GESTURE_DOUBLE_CLICK].toggle.set_checked(cfg.enable_double_click)
         self._rows[C.GESTURE_RIGHT_CLICK].toggle.set_checked(cfg.enable_right_click)
         self._rows[C.GESTURE_SCROLL_V].toggle.set_checked(cfg.enable_scroll)
-        self._rows[C.GESTURE_ZOOM].toggle.set_checked(cfg.enable_zoom)
         self._rows[C.GESTURE_OPEN_PALM].toggle.set_checked(cfg.enable_pause)
         self._rows[C.GESTURE_FIST].toggle.set_checked(cfg.enable_screenshot)
         self._rows[C.GESTURE_THUMB_UP].toggle.set_checked(cfg.enable_volume)

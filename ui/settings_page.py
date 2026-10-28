@@ -138,7 +138,6 @@ class SettingsPage(QWidget):
             f"Pause: {cfg.safety.pause_hotkey}   "
             f"Emergency stop: {cfg.safety.emergency_stop_hotkey}   "
             f"Calibration: {cfg.safety.calibration_hotkey}   "
-            f"Keyboard: {cfg.safety.keyboard_hotkey}   "
             f"Quit: {cfg.safety.quit_hotkey}"
         )
         hotkeys.setObjectName("CardSubtitle")

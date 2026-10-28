@@ -30,7 +30,6 @@ GESTURE_DOUBLE_CLICK = "double_click"
 GESTURE_RIGHT_CLICK = "right_pinch"  # thumb+middle pinch -> right click
 GESTURE_SCROLL_V = "scroll_vertical"
 GESTURE_SCROLL_H = "scroll_horizontal"
-GESTURE_ZOOM = "zoom"              # index+middle V spread -> zoom in/out
 GESTURE_OPEN_PALM = "open_palm"    # pause
 GESTURE_FIST = "fist"              # screenshot
 
@@ -50,7 +49,6 @@ GESTURE_LABELS: dict[str, str] = {
     GESTURE_RIGHT_CLICK: "Middle pinch (right click)",
     GESTURE_SCROLL_V: "Two fingers (scroll)",
     GESTURE_SCROLL_H: "Two fingers sideways (scroll H)",
-    GESTURE_ZOOM: "Two fingers spread (zoom)",
     GESTURE_OPEN_PALM: "Open palm (pause)",
     GESTURE_FIST: "Fist (screenshot)",
     GESTURE_THUMB_UP: "Thumb up (volume +)",
@@ -71,7 +69,6 @@ STATE_RIGHT_CLICK = "RIGHT_CLICK"
 STATE_DOUBLE_CLICK = "DOUBLE_CLICK"
 STATE_DRAGGING = "DRAGGING"
 STATE_SCROLLING = "SCROLLING"
-STATE_ZOOMING = "ZOOMING"
 STATE_PAUSED = "PAUSED"
 STATE_NO_HAND = "NO_HAND"
 STATE_ERROR = "ERROR"
@@ -94,10 +91,6 @@ ACTION_DRAG_MOVE = "drag_move"
 ACTION_DRAG_END = "drag_end"
 ACTION_SCROLL_V = "scroll_vertical"
 ACTION_SCROLL_H = "scroll_horizontal"
-# Zoom is analog: the state machine resolves the direction from whether the
-# index+middle spread widened (in) or narrowed (out).
-ACTION_ZOOM_IN = "zoom_in"
-ACTION_ZOOM_OUT = "zoom_out"
 ACTION_PAUSE = "pause"
 ACTION_RESUME = "resume"
 
@@ -139,7 +132,6 @@ DEFAULT_DOUBLE_CLICK_WINDOW_MS = 420
 DEFAULT_DRAG_HOLD_MS = 320
 DEFAULT_SCROLL_SENSITIVITY = 1.0
 DEFAULT_SCROLL_DEADZONE_PX = 12
-DEFAULT_ZOOM_SENSITIVITY = 1.0
 DEFAULT_PAUSE_HOLD_MS = 900
 DEFAULT_MOVEMENT_DEADZONE = 0.006
 DEFAULT_MAX_FPS = 30

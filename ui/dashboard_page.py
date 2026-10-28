@@ -67,9 +67,8 @@ class DashboardPage(QWidget):
         self.pause_btn.setEnabled(False)
         self.emergency_btn = QPushButton("Emergency Stop")
         self.emergency_btn.setObjectName("DangerButton")
-        self.keyboard_btn = QPushButton("Keyboard")
         self.stop_btn.setEnabled(False)
-        for button in (self.start_btn, self.stop_btn, self.pause_btn, self.emergency_btn, self.keyboard_btn):
+        for button in (self.start_btn, self.stop_btn, self.pause_btn, self.emergency_btn):
             actions_layout.addWidget(button)
         actions_layout.addStretch(1)
         actions.body().addLayout(actions_layout)
@@ -133,7 +132,6 @@ class DashboardPage(QWidget):
         self.stop_btn.clicked.connect(self.app.stop_controller)
         self.pause_btn.clicked.connect(self.app.toggle_pause)
         self.emergency_btn.clicked.connect(lambda: self.app.emergency_stop("dashboard"))
-        self.keyboard_btn.clicked.connect(self.app.request_keyboard_toggle)
 
         self.app.controller_started.connect(self._on_started)
         self.app.controller_stopped.connect(self._on_stopped)

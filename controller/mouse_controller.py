@@ -151,26 +151,6 @@ class MouseController:
         except Exception as exc:  # noqa: BLE001
             log.error("Horizontal scroll failed: %s", exc)
 
-    def zoom(self, amount: int) -> None:
-        """Ctrl + wheel: zoom in (positive) / zoom out (negative).
-
-        Ctrl is held only for the duration of the single wheel event and is
-        released in a ``finally`` so a failed call can never leave the key
-        stuck down.  Ctrl+wheel is the standard zoom shortcut in Windows
-        browsers, File Explorer, Office and most image viewers.
-        """
-        if not isinstance(amount, int) or amount == 0:
-            return
-        amount = int(max(-10, min(10, amount)))
-        try:
-            self._pyautogui.keyDown("ctrl")
-            try:
-                self._pyautogui.scroll(amount, _pause=False)
-            finally:
-                self._pyautogui.keyUp("ctrl")
-        except Exception as exc:  # noqa: BLE001
-            log.error("Zoom failed: %s", exc)
-
     # -- safety --------------------------------------------------------------
     def release_all(self) -> set[str]:
         """Release every held button. Returns the buttons that were released."""

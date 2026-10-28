@@ -8,7 +8,12 @@ hovering at the threshold cannot flicker between states.
 
 from __future__ import annotations
 
-from vision.landmark_processor import FingerState, distance, hand_scale
+from vision.landmark_processor import (
+    FingerState,
+    distance,
+    hand_scale,
+    normalised_distance,
+)
 from vision.types import HandObservation
 
 from app import constants as C
@@ -31,7 +36,6 @@ PRIORITY: tuple[str, ...] = (
     C.GESTURE_SHAKA,
     C.GESTURE_FLAT_HAND,
     C.GESTURE_THREE_FINGERS,
-    C.GESTURE_ZOOM,
     C.GESTURE_SCROLL_V,
     C.GESTURE_SCROLL_H,
     C.GESTURE_POINT,
@@ -113,46 +117,6 @@ def is_right_click_sustain(fingers: FingerState, cfg: GestureConfig) -> bool:
 def is_scroll_vertical(obs: HandObservation, fingers: FingerState) -> bool:
     """Index + middle fingers up while ring + pinky stay down."""
     return is_scroll_pose(fingers)
-
-
-# -- zoom (two fingers spread in a 'V') ---------------------------------------
-# Zoom shares its base pose with scroll (index + middle up, ring/pinky down),
-# so the two are separated by the *spread* between the fingertips: fingers
-# held together and moved = scroll, a clearly open V = zoom.  Arming requires
-# a wider opening than the release point, so the pose cannot flicker between
-# the two at the boundary, and a closed V simply returns to scroll.
-ZOOM_SPREAD_ENTER = 0.48    # arm when the V opens past this (hand-scale units)
-ZOOM_SPREAD_RELEASE = 0.38  # give up zoom when it closes below this
-
-
-def finger_spread(obs: HandObservation) -> float:
-    """Index-tip to middle-tip distance, normalised by hand size."""
-    return (distance(obs.point(C.INDEX_TIP), obs.point(C.MIDDLE_TIP))
-            / hand_scale(obs))
-
-
-def is_zoom_pose(obs: HandObservation, fingers: FingerState) -> bool:
-    """Index + middle up and spread in a V, ring + pinky down.
-
-    This is the *sustaining* form (release threshold): once zoom is latched
-    it survives the V closing to this point, which is what keeps the gesture
-    from flickering between zoom and scroll at the boundary.
-    """
-    return is_scroll_pose(fingers) and finger_spread(obs) > ZOOM_SPREAD_RELEASE
-
-
-def is_zoom_enter(obs: HandObservation, fingers: FingerState) -> bool:
-    """A deliberately opened V arms the zoom.
-
-    Fingers simply held together (the scroll pose) sit well below this, so a
-    scroll can never be captured by the zoom rule.
-    """
-    return is_scroll_pose(fingers) and finger_spread(obs) > ZOOM_SPREAD_ENTER
-
-
-def is_zoom_sustain(obs: HandObservation, fingers: FingerState) -> bool:
-    """Hold the zoom latch while the V stays meaningfully open."""
-    return is_zoom_pose(obs, fingers)
 
 
 def is_scroll_horizontal(obs: HandObservation, fingers: FingerState) -> bool:

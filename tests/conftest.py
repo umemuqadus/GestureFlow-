@@ -135,35 +135,6 @@ def scroll_vertical() -> HandObservation:
     return make_hand(index_ext=True, middle_ext=True, ring_ext=False, pinky_ext=False)
 
 
-def zoom_pose(spread: float = 0.60) -> HandObservation:
-    """Index + middle up and opened into a 'V', ring/pinky down -> zoom.
-
-    ``spread`` is the tip-to-tip distance in hand-scale units (hand scale =
-    0.32).  The default (0.60) clears the arming threshold (0.48); smaller
-    values model the closing motion (0.45 = latched zoom-out, 0.20 = back to
-    the scroll pose).  The whole finger chain leans outward so the joints
-    stay straight and both fingers still count as extended.
-    """
-    u = max(0.0, (0.32 * spread - 0.06) / 0.36)  # per-finger outward lean
-    index = _chain((0.44, 0.60), True, direction=(-u, -1.0))
-    middle = _chain((0.50, 0.58), True, direction=(u, -1.0))
-    ring = _chain((0.56, 0.60), False)
-    pinky = _chain((0.61, 0.63), False)
-    thumb = [(0.42, 0.82, 0.0), (0.38, 0.72, 0.0), (0.34, 0.62, 0.0),
-             (0.44, 0.55, 0.0)]
-    landmarks = (
-        (0.50, 0.90, 0.0),
-        *thumb,
-        (0.44, 0.60, 0.0), *index,
-        (0.50, 0.58, 0.0), *middle,
-        (0.56, 0.60, 0.0), *ring,
-        (0.61, 0.63, 0.0), *pinky,
-    )
-    assert len(landmarks) == 21, len(landmarks)
-    return HandObservation(landmarks=landmarks, handedness="Right", score=0.95,
-                           timestamp=0.0)
-
-
 # -- system-control poses -------------------------------------------------------
 def thumb_up_pose() -> HandObservation:
     """Curled hand, thumb raised well above the knuckles -> volume up."""

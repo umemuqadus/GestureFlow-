@@ -63,12 +63,6 @@ def default_rules(cfg: GestureConfig) -> dict[str, GestureRule]:
             action=C.ACTION_SCROLL_H,
             enabled=cfg.enable_scroll,
         ),
-        C.GESTURE_ZOOM: GestureRule(
-            gesture_id=C.GESTURE_ZOOM,
-            # Directional: widened gap -> zoom_in, narrowed -> zoom_out.
-            action=C.ACTION_ZOOM_IN,
-            enabled=cfg.enable_zoom,
-        ),
         C.GESTURE_OPEN_PALM: GestureRule(
             gesture_id=C.GESTURE_OPEN_PALM,
             action=C.ACTION_PAUSE,
@@ -149,9 +143,6 @@ CONFLICT_GROUPS: tuple[frozenset[str], ...] = (
     frozenset({C.GESTURE_PINCH, C.GESTURE_RIGHT_CLICK}),
     frozenset({C.GESTURE_SCROLL_V, C.GESTURE_SCROLL_H}),
     frozenset({C.GESTURE_OPEN_PALM, C.GESTURE_POINT, C.GESTURE_PINCH}),
-    # Zoom shares its base pose (index + middle up) with scroll; the V-spread
-    # threshold keeps them apart (see gesture_rules.is_zoom_enter).
-    frozenset({C.GESTURE_ZOOM, C.GESTURE_SCROLL_V, C.GESTURE_SCROLL_H}),
 )
 
 

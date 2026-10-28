@@ -29,7 +29,6 @@ from ui.level_overlay import LevelOverlay
 from ui.settings_page import SettingsPage
 from ui.screenshot_overlay import ScreenshotOverlay
 from ui.theme import build_qss, theme_by_name
-from ui.virtual_keyboard import VirtualKeyboard
 from utils.logger import get_logger
 
 log = get_logger(__name__)
@@ -77,13 +76,6 @@ class MainWindow(QMainWindow):
         # Created before apply_theme() so the first theme pass styles it too.
         self._level_overlay = LevelOverlay(theme_by_name(self.app.config.ui.theme))
         self.app.level_changed.connect(self._level_overlay.show_level)
-
-        # Virtual keyboard overlay.  Point-and-pinch with the gesture cursor to
-        # type; the window never takes focus so keystrokes land in the target app.
-        self._keyboard = VirtualKeyboard(
-            self.app.keyboard, theme_by_name(self.app.config.ui.theme)
-        )
-        self.app.toggle_keyboard.connect(self._keyboard.toggle)
 
         self.apply_theme(self.app.config.ui.theme)
         QApplication.instance().installEventFilter(self)
@@ -164,7 +156,6 @@ class MainWindow(QMainWindow):
         QApplication.instance().setStyleSheet(build_qss(theme))
         self._shot_overlay.apply_theme(theme)
         self._level_overlay.apply_theme(theme)
-        self._keyboard.apply_theme(theme)
 
     # -- focus-loss pause ------------------------------------------------------------
     def eventFilter(self, obj, event) -> bool:  # noqa: N802 - Qt API name

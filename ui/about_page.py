@@ -34,7 +34,6 @@ _SHORTCUTS = (
     "Ctrl + Alt + P — Pause or resume control\n"
     "Esc — Emergency stop (releases held buttons and halts automation)\n"
     "Ctrl + Alt + C — Open the calibration flow\n"
-    "Ctrl + Alt + K — Show or hide the virtual keyboard\n"
     "Ctrl + Alt + Q — Quit after safe cleanup\n\n"
     "These are registered system-wide on Windows, so they work even when the "
     "window is not focused. If a combination is already used by another program, "
