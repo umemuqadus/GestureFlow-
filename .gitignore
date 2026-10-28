@@ -24,6 +24,25 @@ htmlcov/
 Thumbs.db
 Desktop.ini
 
+# Secrets / local environment (never commit)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets.*
+
+# Recorded media (never commit camera recordings)
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.wmv
+*.flv
+*.webm
+*.mpg
+*.m4v
+
 # Logs produced at runtime
 *.log
 
