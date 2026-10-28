@@ -190,7 +190,7 @@ Suggested filenames: `dashboard.png`, `live-controller.png`,
 ## 4. Architecture
 
 ```
-gestureflow-ai/
+GestureFlow/
 ├── main.py                     # entry point: builds QApplication + Application + MainWindow
 ├── app/
 │   ├── application.py          # composition root: wires services, safety, engine, hotkeys
